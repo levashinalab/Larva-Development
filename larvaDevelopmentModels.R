@@ -15,8 +15,10 @@ larva_growth_delay<-function(t,state,parms){
 
     if(t<=tau)
       gamma = 0
+    
     dL <- -delta*L*(1+(L/(L+h2))) -gamma*L*(1-(L/(L+h)))
     dP<- gamma*L*(1-(L/(L+h)))
+    
     return(list(c(dL,dP)))
   })
 }

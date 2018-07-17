@@ -5,10 +5,7 @@
 #remove old values to avoid trouble
 rm(list=ls())
 #load the necessary libraries and files
-
-suppressPackageStartupMessages(require(ggplot2, quietly = TRUE))
 suppressPackageStartupMessages(require(plyr, quietly = TRUE))
-source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
 
 
 IN_FILE<-'~/Documents/Projects/LarvaeDevelopment/raw_Data/2018_06_28_development-data-28.csv'

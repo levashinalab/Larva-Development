@@ -4,6 +4,7 @@
 
 #remove old values to avoid trouble
 rm(list=ls())
+
 #load the necessary libraries and files
 suppressPackageStartupMessages(require(ggplot2, quietly = TRUE))
 source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
@@ -12,7 +13,7 @@ source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
 
 # 0. set the parameters -----
 # set the names of the files we are reading from:
-IN_FILE<-'~/Documents/Projects/LarvaeDevelopment/raw_Data/2018_06_28_development-data-28.csv'
+IN_FILE<-'~/Documents/Projects/LarvaeDevelopment/raw_Data/2018_06_28_development-data-28.csv' #absolute path
 IN_FILE_CUM<-'~/Documents/Projects/LarvaeDevelopment/analysis/2018_06_28_cumulative_pupae_mean.csv'
 
 #set the names of the files we are saving

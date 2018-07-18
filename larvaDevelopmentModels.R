@@ -17,7 +17,7 @@ f2<-eqnvec(
 
 #### 3. Density-dependent development: exponential functional response----
 f3<-eqnvec(
-  L = "- delta_L*L - gamma*L*(1-(L/(L+h)))",
+  L = "- delta_L*L - gamma*L*(exp(-log(2)*L/h))",
   P = "gamma*L*(1-(L/(L+h)))",
   gamma = 0
 )

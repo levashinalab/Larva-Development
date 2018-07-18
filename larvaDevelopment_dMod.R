@@ -13,12 +13,8 @@ library(dMod)
 library(ggplot2)
 library (tibble)
 library(plyr)
+source('~/Documents/Projects/LarvaeDevelopment/src/Larva-Development/larvaDevelopmentModels.R')
 
-f<-eqnvec(
-  L = "- delta_L*L - gamma*L*(1-(L/(L+h)))",
-  P = "gamma*L*(1-(L/(L+h)))",
-  gamma = 0
-)
 
 #set parameters
 P_FILE<-"~/Documents/Projects/LarvaeDevelopment/analysis/2018_07_18_cumulative_pupae_dMod_RsgG.csv"

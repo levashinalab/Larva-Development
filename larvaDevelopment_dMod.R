@@ -14,6 +14,7 @@ library(ggplot2)
 library (tibble)
 library(plyr)
 source('~/Documents/Projects/LarvaeDevelopment/src/Larva-Development/larvaDevelopmentModels.R')
+source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
 
 
 #set parameters
@@ -119,23 +120,23 @@ plotPars(subset(pars, converged))
 controls(g, NULL, "attach.input") <- TRUE
 prediction <- predict(g*x*p, 
                       times = 0:18, 
-                      pars = subset(pars[1:5,], converged), 
+                      pars = subset(pars[1:50,],converged), 
                       data = data)
 
-ggplot(prediction, aes(x = time, y = value, color = .value, group = .value)) +facet_grid(condition~name, scales = "free") + geom_line() + geom_point(data = attr(prediction, "data")) +  theme_dMod()
+ggplot(subset(prediction, name !="gamma" & name!= "P"), aes(x = time, y = value, color = .value, group = .value)) +facet_grid(condition~name, scales = "free") + geom_line() + geom_point(data = attr(prediction, "data")) +theme_dMod()
 
 # Compute the profile likelihood around the optimum
-bestfit <- pars[1,5:8]
+bestfit <- pars[1,5:ncol(pars)]
 profiles <- profile(obj, bestfit, names(bestfit), cores = 4)
 
 # Take a look at each parameter
 plotProfile(profiles)
 
+##STILL TO DO: Plot the predictions: ----
 #print the CI
 fittedValues<-confint(profiles)
 #transform  the values back to natural scale
 fittedValues[,2:4]<-exp(fittedValues[,2:4])
 
-
-plot((g*x*p)(times, bestfit), data)
-##STILL TO DO: Plot the predictions: and now: how exactly do I see the density effect????is this my h parameter?
+fittedModel<-(g*x*p)(times, bestfit)
+plot(fittedModel,data)

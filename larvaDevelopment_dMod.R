@@ -23,12 +23,13 @@ P_FILE<-"~/Documents/Projects/LarvaeDevelopment/analysis/2018_07_18_cumulative_p
 
 OUT_DIR<-"~/Documents/Projects/LarvaeDevelopment/data_fitting/"
 OUT_FIG<-"~/Documents/Projects/LarvaeDevelopment/figures/fitting/"
-STRAIN<-"RsgG_exp"
+STRAIN<-"RsgG_fixed_TypeII"
 
+#FIXED<-TRUE
 
 #define the model in dMod style----
 #define the ode Model (see the larvaDevelopmentModels.R for the exact definition of the models)
-f<-f3
+f<-f2
 myevent <- eventlist(var = "gamma", time = "t_on", value = "gamma_on" , method = "replace") #necessary to make a piecewise model (parameter gamma is set as a variable that "rutns on" as an event)
 
 #ODE model
@@ -97,27 +98,27 @@ data<-as.datalist(df.Pupae,split.by = "condition")
 #plot(data) +geom_line()
 
 #fix some parameters
-#fixed<-c(t_on = log(6))
+fixed<-c(t_on = log(6))
 
 # Define prior values for parameters: I am fixing one parameter, therefore I create a vector with one less parameter (that's why the length -1) 
 #prior <- structure(rep(0, length(pouter)-1), names = setdiff(names(pouter), names(fixed)))  
-#prior<-pouter[setdiff(names(pouter), names(fixed))]
+prior<-pouter[setdiff(names(pouter), names(fixed))]
 
-prior<-pouter
+#prior<-pouter
 #prior<-structure(rep(0, length(pouter)), names = names(pouter))  
 
 # Set up objective function
 obj <- normL2(data, g*x*p) + constraintL2(mu = prior, sigma = 10)
 
 # Optimize the objective function
-myfit<- trust(obj, exp(prior), rinit = 1, rmax = 10)
-#myfit<- trust(obj, exp(prior), rinit = 1, rmax = 10, fixed = exp(fixed))
+#myfit<- trust(obj, exp(prior), rinit = 1, rmax = 10)
+myfit<- trust(obj, exp(prior), rinit = 1, rmax = 10, fixed = fixed)
 
-plot((g*x*p)(times, myfit$argument), data)
-#plot((g*x*p)(times, myfit$argument, fixed = fixed), data)
+#plot((g*x*p)(times, myfit$argument), data)
+plot((g*x*p)(times, myfit$argument, fixed = fixed), data)
 
 #Exploring the parameter space -----
-fitlist <- mstrust(obj, center = myfit$argument, fits = 100, cores = 4, sd = 10, samplefun = "rnorm")
+fitlist <- mstrust(obj, center = myfit$argument, fits = 100, cores = 4, sd = 10, samplefun = "rnorm", fixed = fixed)
 pars <- as.parframe(fitlist)
 
 #save the results
@@ -126,7 +127,7 @@ write.table(pars, file = paste(OUT_DIR, Sys.Date(), "parameters_msTrust", STRAIN
 
 #plot the residuals
 pdf(file=paste(OUT_FIG, Sys.Date(),"_residuals_", STRAIN,".pdf", sep = ""))
-plotResiduals2(pars[1,],g*x*p,data)
+plotResiduals2(pars[1,],g*x*p,data, fixed = fixed)
 dev.off()
 
 #plotValues(subset(pars, converged))
@@ -136,6 +137,7 @@ controls(g, NULL, "attach.input") <- TRUE
 prediction <- predict(g*x*p, 
                       times = 0:18, 
                       pars = subset(pars,converged), 
+                      fixed = fixed,
                       data = data)
 
 plot_mstrust<-ggplot(subset(prediction, name !="gamma" & name!= "P"), aes(x = time, y = value, color = .value, group = .value)) +facet_grid(condition~name, scales = "free") + geom_line() + geom_point(data = attr(prediction, "data")) +theme_dMod() 
@@ -146,15 +148,15 @@ dev.off()
 
 # Compute the profile likelihood around the optimum
 bestfit <- as.parvec(pars)
-profiles <- profile(obj, bestfit, names(bestfit), cores = 4)
+profiles <- profile(obj, bestfit, names(bestfit), cores = 4, fixed = fixed)
 
 # Take a look at each parameter
-pdf(file=paste(OUT_FIG, Sys.Date(),"PL", STRAIN, ".pdf", sep = ""))
+pdf(file=paste(OUT_FIG, Sys.Date(),"_PL_", STRAIN, ".pdf", sep = ""))
 plotProfile(profiles)
 dev.off()
 
 #save the profiles
-write.csv(profiles, file = paste(OUT_DIR, Sys.Date(), "PL", STRAIN, ".csv", sep = ""), row.names = FALSE)
+write.csv(profiles, file = paste(OUT_DIR, Sys.Date(), "_PL_", STRAIN, ".csv", sep = ""), row.names = FALSE)
 
 ##STILL TO DO: Plot the predictions: ----
 #print the CI

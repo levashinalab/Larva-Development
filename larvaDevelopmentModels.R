@@ -22,9 +22,23 @@ f3<-eqnvec(
   gamma = 0
 )
 
-#### 4. Simple density-dependent death----
+#### 4. Simple density-dependent death: Type I----
 f4<-eqnvec(
-  L = "- delta_L*L*(1-(L/(L+h))) - gamma*L",
+  L = "- delta_L*L*(1+(L/(L+h))) - gamma*L",
+  P = "gamma*L",
+  gamma = 0
+)
+
+#### 5. Density-dependent death (type I) and growth (exp)----
+f5<-eqnvec(
+  L = "- delta_L*L*(1-(L/(L+h1))) - gamma*L*(exp(-log(2)*L/h))",
+  P = "gamma*L*(exp(-log(2)*L/h))",
+  gamma = 0
+)
+
+#### 4. Simple density-dependent death: exp----
+f6<-eqnvec(
+  L = "- delta_L*L*(1-exp(-log(2)*L/h)) - gamma*L",
   P = "gamma*L",
   gamma = 0
 )

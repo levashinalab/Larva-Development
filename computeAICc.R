@@ -1,11 +1,20 @@
-AICc1 <- function(model1) {
-  ssr<-model1$ssr
-  npar<-length(model1$par)
-  ndata<-length(model1$residuals)
+AICc1 <- function(model1, ndata) {
+  ssr<-model1$value
+  npar<-length(as.parvec(model1))
   ndata*log(ssr/ndata)+2*npar+2*npar*(npar+1)/(ndata-npar-1)
+  #2*npar + ndata*log(ssr/ndata)
 } 
 
-plotResiduals2 <- function(parframe, x, data, split = "condition", errmodel = NULL, ...){
+myPlotResiduals <- function(data=out){
+ 
+  P<- ggplot2::ggplot(data, aes(x = value, y =prediction, colour = as.factor(condition), group = as.factor(condition))) +geom_abline(slope = 1, intercept = 0,linetype = "dashed") + geom_point() +theme_dMod(base_size = 20) +scale_color_dMod(name = "condition") 
+  
+  P_r<-ggplot2::ggplot(data, aes(x = value, y =weighted.residual, colour = as.factor(condition), group = as.factor(condition)))+geom_hline(yintercept = 0, linetype = "dashed") + geom_point() +theme_dMod(base_size = 20) +scale_color_dMod(name = "condition") 
+
+  return(gridExtra::grid.arrange(P, P_r, ncol = 1))
+}
+
+myCalculateResiduals <- function(parframe, x, data, split = "condition", errmodel = NULL, ...){
   timesD <- sort(unique(c(0, do.call(c, lapply(data, function(d) d$time)))))
   if(!("index" %in% colnames(parframe)))
     parframe$index <- 1:nrow(parframe)
@@ -27,27 +36,7 @@ plotResiduals2 <- function(parframe, x, data, split = "condition", errmodel = NU
     return(out_par)
   })
   )
-#  if (!is.null(errmodel)) {
-#    out <- plyr::ddply(out, split, summarise, res = sum(weighted.residual^2 + log(sigma^2))) 
-#  } else{
-#    out <- plyr::ddply(out, split, summarise, res = sum(weighted.residual^2)) 
-#  }
-#  groupvar <- split[1]
-#  if(length(split) > 1){
-#    groupvar <- split[2]
-#  }
-  
-  P<- ggplot2::ggplot(out, aes(x = value, y =prediction, colour = as.factor(condition), group = as.factor(condition))) +geom_abline(slope = 1, intercept = 0,linetype = "dashed") + geom_point() +theme_dMod(base_size = 20) +scale_color_dMod(name = "condition") 
-  
-  P_r<-ggplot2::ggplot(out, aes(x = value, y =weighted.residual, colour = as.factor(condition), group = as.factor(condition)))+geom_hline(yintercept = 0, linetype = "dashed") + geom_point() +theme_dMod(base_size = 20) +scale_color_dMod(name = "condition") 
-  #P <- ggplot2::ggplot(out, aes_string(x = split[1], y = "res", color = groupvar, group = groupvar)) + theme_dMod() + geom_point() + geom_line()
-  
- # if(length(split) > 2)
-  #  P <- P + facet_wrap(split[3:length(split)]) 
-  
-  #attr(P,"out") <- out
-  
-  return(gridExtra::grid.arrange(P, P_r, ncol = 1))
+  return(out)
 }
 
 #plotResiduals2(pars[1,], g*x*p, data)

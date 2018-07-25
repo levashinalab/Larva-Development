@@ -23,13 +23,13 @@ P_FILE<-"~/Documents/Projects/LarvaeDevelopment/analysis/2018_07_18_cumulative_p
 
 OUT_DIR<-"~/Documents/Projects/LarvaeDevelopment/data_fitting/"
 OUT_FIG<-"~/Documents/Projects/LarvaeDevelopment/figures/fitting/"
-STRAIN<-"RsgG_fixed_TypeII"
+STRAIN<-"RsgG_fixed_growth_exp_"
 
 #FIXED<-TRUE
 
 #define the model in dMod style----
 #define the ode Model (see the larvaDevelopmentModels.R for the exact definition of the models)
-f<-f2
+f<-f3
 myevent <- eventlist(var = "gamma", time = "t_on", value = "gamma_on" , method = "replace") #necessary to make a piecewise model (parameter gamma is set as a variable that "rutns on" as an event)
 
 #ODE model
@@ -122,12 +122,15 @@ fitlist <- mstrust(obj, center = myfit$argument, fits = 100, cores = 4, sd = 10,
 pars <- as.parframe(fitlist)
 
 #save the results
-write.table(pars, file = paste(OUT_DIR, Sys.Date(), "parameters_msTrust", STRAIN, ".csv", sep = ""), sep = ";", row.names=FALSE)
+write.table(pars, file = paste(OUT_DIR, Sys.Date(), "_parameters_msTrust_", STRAIN, ".csv", sep = ""), sep = ";", row.names=FALSE)
 
+#calculate the residuals
+residuals<-myCalculateResiduals(pars[1,],g*x*p,data, fixed = fixed)
+write.table(residuals, file = paste(OUT_DIR, Sys.Date(), "_residuals_", STRAIN, ".csv", sep = ""), sep = ";", row.names=FALSE)
 
 #plot the residuals
 pdf(file=paste(OUT_FIG, Sys.Date(),"_residuals_", STRAIN,".pdf", sep = ""))
-plotResiduals2(pars[1,],g*x*p,data, fixed = fixed)
+myPlotResiduals(residuals)
 dev.off()
 
 #plotValues(subset(pars, converged))
@@ -163,10 +166,13 @@ write.csv(profiles, file = paste(OUT_DIR, Sys.Date(), "_PL_", STRAIN, ".csv", se
 fittedValues<-confint(profiles)
 #transform  the values back to natural scale
 fittedValues[,2:4]<-exp(fittedValues[,2:4])
+fittedValues<-rbind(fittedValues, data.frame(name = "AICc", value = AICc1(pars[1,],nrow(residuals)), lower = "", upper = " "))
+write.csv(fittedValues, file = paste(OUT_DIR, Sys.Date(), "_fittedParameters_", STRAIN, ".csv",sep = ""), row.names = FALSE)
 
-write.csv(fittedValues, file = paste(OUT_DIR, Sys.Date(), "fittedParameters", STRAIN, ".csv",sep = ""), row.names = FALSE)
+fittedModel<-(g*x*p)(times, bestfit, fixed = fixed)
 
-fittedModel<-(g*x*p)(times, bestfit)
-plot(fittedModel,data)
+pdf(file=paste(OUT_FIG, Sys.Date(),"_bestPredictionsWrap_", STRAIN,".pdf", sep = ""), width = 10, height = 10)
+plot(fittedModel,data,facet = "wrap")+theme_dMod(base_size = 24)
+dev.off()
 
 

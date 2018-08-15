@@ -7,30 +7,37 @@ rm(list=ls())
 
 #load the necessary libraries and files
 suppressPackageStartupMessages(require(ggplot2, quietly = TRUE))
-source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
-
+source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R') #update the path to where you saved this file
+require(gdata) #necessary to read xls files
 
 
 # 0. set the parameters -----
 # set the names of the files we are reading from:
-IN_FILE<-'~/Documents/Projects/LarvaeDevelopment/raw_Data/2018_06_28_development-data-28.csv' #absolute path
-IN_FILE_CUM<-'~/Documents/Projects/LarvaeDevelopment/analysis/2018_06_28_cumulative_pupae_mean.csv'
+IN_DIR<-'/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/development/'
+
+IN_FILE_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_development_cumulative_pupae_mean.csv",sep = "")
 
 #set the names of the files we are saving
-OUT_FILE<-'~/Documents/Projects/LarvaeDevelopment/figures/2018_06_28_summary_development.pdf'
-OUT_CUM<-'~/Documents/Projects/LarvaeDevelopment/figures/2018_06_28_cumulativePupae.pdf'
+OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/", Sys.Date(),"_development_development.pdf",sep = "")
 
+OUT_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/", Sys.Date(),"_development_cumulativePupae.pdf",sep = "")
 
-## 1 . start with the time course data ----
-#read the data
-df.orig<-read.csv(IN_FILE, sep = ";", header = TRUE, row.names = NULL)
+#set the current directory to IN_DIR
+setwd(IN_DIR)
 
+#save all files wihtin the directory
+nm <- list.files(path=IN_DIR)
+
+#concatenate all data frames in the directory into one-------
+df.orig<-do.call(rbind, lapply(nm, function(x) read.xls(x,sheet = 3)))  #sheet 3 is where Paula saved the data in the required format
 
 
 ### plot the time course data of the fraction of pupaeting individuals
-pl1<-ggplot(df.orig, aes(x = Day, y = Pupae/Density)) + geom_point(aes(colour = as.factor(Ex.Repeat))) +facet_grid(Density~Strain) +stat_summary(geom="line", fun.y = "mean") + stat_summary(fun.data = mean_se, geom = "errorbar")+ylab("Proportion of pupaeting larvae") +basic_theme +ylim(c(0,0.8))
+#this plot includes dthe invidiual data points of every ex.repeat
+pl1<-ggplot(df.orig, aes(x = Day, y = Pupae/Density,colour = as.factor(Density))) + geom_point() +facet_grid(Temperature~Strain)  +ylab("Proportion of pupaeting larvae") +basic_theme+scale_color_manual(values=c("black","red", "blue")) +stat_summary(geom="line", fun.y = "mean") + stat_summary(fun.data = mean_se) 
 
-pl1.pulled<-ggplot(df.orig, aes(x = Day, y = Pupae/Density, colour = as.factor(Density)))+facet_wrap(~Strain, ncol = 1)  +stat_summary(geom="line", fun.y = "mean") + stat_summary(fun.data = mean_se, geom = "errorbar")+ylab("Proportion of pupaeting larvae")+scale_color_manual(values=c("red", "blue", "black")) +basic_theme
+#this plot just plots the summary, i.e., mean with se
+pl1.pulled<-ggplot(df.orig, aes(x = Day, y = Pupae/Density, colour = as.factor(Density)))+facet_grid(Temperature~Strain)  + stat_summary(geom="point", fun.y = mean)+stat_summary(geom="line", fun.y = "mean") + stat_summary(fun.data = mean_se)+ylab("Proportion of pupaeting larvae")+scale_color_manual(values=c("black","red", "blue")) +basic_theme
 
 
 #save the plot
@@ -46,9 +53,11 @@ df<-read.csv(IN_FILE_CUM, sep = ",", header = TRUE, row.names = NULL)
 
 
 ##plot the time course data of the cumulative sum of pupaeting individuals
-pl2<-ggplot(df, aes(x = Day, y = median.freq))+ geom_point(aes(colour = as.factor(Ex.Repeat)))+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se, geom = "errorbar")+ facet_grid(Density~Strain)+basic_theme +ylim(c(0,0.8)) +ylab("Cumulative frequency of pupae")
+#this plot includes dthe invidiual data points of every ex.repeat
+pl2<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Density)))+ geom_point()+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se)+basic_theme +ylim(c(0,0.8)) +ylab("Cumulative frequency of pupae")+scale_color_manual(values=c("black","red", "blue"))
 
-pl2.pulled<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Density)))+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se, geom = "errorbar")+ facet_wrap(~Strain, ncol = 1)+basic_theme +ylim(c(0,0.8)) +ylab("Cumulative frequency of pupae") +scale_color_manual(values=c("red", "blue", "black"))
+#this plot just plots the summary, i.e., mean with se
+pl2.pulled<-ggplot(df, aes(x = Day, y = median.total, colour = as.factor(Density)))+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + stat_summary(geom="point", fun.y = mean)+stat_summary(fun.data = mean_se)+basic_theme  +ylab("Cumulative frequency of pupae") +scale_color_manual(values=c("black","red", "blue" ))
 
 
 #save the plot

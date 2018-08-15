@@ -8,11 +8,11 @@ rm(list=ls())
 require(plyr) #necessary for data processing
 require(gdata) #necessary to read xls files
 
-IN_DIR<-'/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/development/'
+IN_DIR<-'/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/20vs1000/'
 
-OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_development_cumulative_pupae.csv",sep = "")
+OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_20vs1000_cumulative_pupae.csv",sep = "")
   
-OUT_FILE_M<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_development_cumulative_pupae_mean.csv",sep = "")
+OUT_FILE_M<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_20vs1000_cumulative_pupae_mean.csv",sep = "")
 
 #set the current directory to IN_DIR
 setwd(IN_DIR)

@@ -54,10 +54,10 @@ df<-read.csv(IN_FILE_CUM, sep = ",", header = TRUE, row.names = NULL)
 
 ##plot the time course data of the cumulative sum of pupaeting individuals
 #this plot includes dthe invidiual data points of every ex.repeat
-pl2<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Density)))+ geom_point()+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se)+basic_theme +ylim(c(0,0.8)) +ylab("Cumulative frequency of pupae")+scale_color_manual(values=c("black","red", "blue"))
+pl2<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Density)))+ geom_point()+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se)+basic_theme +ylab("Cumulative frequency of pupae")+scale_color_manual(values=c("black","red", "blue"))
 
 #this plot just plots the summary, i.e., mean with se
-pl2.pulled<-ggplot(df, aes(x = Day, y = median.total, colour = as.factor(Density)))+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + stat_summary(geom="point", fun.y = mean)+stat_summary(fun.data = mean_se)+basic_theme  +ylab("Cumulative frequency of pupae") +scale_color_manual(values=c("black","red", "blue" ))
+pl2.pulled<-ggplot(df, aes(x = Day, y = median.total, colour = as.factor(Density)))+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + stat_summary(geom="point", fun.y = mean)+stat_summary(fun.data = mean_se)+basic_theme  +ylab("Cumulative number of pupae") +scale_color_manual(values=c("black","red", "blue" ))
 
 
 #save the plot

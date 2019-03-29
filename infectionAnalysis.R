@@ -4,7 +4,7 @@ rm(list=ls())
 require(plyr) #necessary for data processing
 require(gdata) #necessary to read xls files
 library(ggplot2)
-source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
+#source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R')
 TYPE<- "infection"
 
 IN_DIR<-paste('/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/', TYPE, '/', sep = "")

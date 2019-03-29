@@ -7,6 +7,7 @@ rm(list=ls())
 
 #load the necessary libraries and files. You might need to install the packages first
 require(plyr) #necessary for data processing
+require(dplyr)
 require(gdata) #necessary to read xls files
 library(survival)
 source("https://bioconductor.org/biocLite.R")
@@ -15,7 +16,7 @@ library(ggplot2)
 library(survminer)
 library(survtools)
 library(flexsurv)
-source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R') #update the path to where you saved this file
+#source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R') #update the path to where you saved this file
 
 TYPE<- "survival"
 

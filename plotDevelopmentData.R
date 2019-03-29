@@ -10,19 +10,22 @@ suppressPackageStartupMessages(require(ggplot2, quietly = TRUE))
 source('~/Documents/Projects/Malaria/modeling/ABM/src/RScripts/ggplotThemes.R') #update the path to where you saved this file
 require(gdata) #necessary to read xls files
 
+####TO DO:::___________
+# if sum(X$Pan == 0) then remove than Pan
+
 
 # 0. set the parameters -----
-TYPE<- 'development'
+TYPE<- 'food'
 
 # set the names of the files we are reading from:
 IN_DIR<-paste('/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/', TYPE, '/', sep = "")
 
-IN_FILE_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_",TYPE,"_cumulative_pupae_mean.csv",sep = "")
+IN_FILE_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", TYPE,"/", Sys.Date(),"_cumulative_pupae_mean.csv",sep = "")
 
 #set the names of the files we are saving
-OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/", Sys.Date(),"_",TYPE,"_development.pdf",sep = "")
+OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/", TYPE, "/",Sys.Date(),"_development.pdf",sep = "")
 
-OUT_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/", Sys.Date(),"_",TYPE,"_cumulativePupae.pdf",sep = "")
+OUT_CUM<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/figures/",TYPE,"/", Sys.Date(),"_cumulativePupae.pdf",sep = "")
 
 #set the current directory to IN_DIR
 setwd(IN_DIR)
@@ -31,8 +34,17 @@ setwd(IN_DIR)
 nm <- list.files(path=IN_DIR)
 
 #concatenate all data frames in the directory into one-------
-df.orig<-do.call(rbind, lapply(nm, function(x) read.xls(x,sheet = 3)))  #sheet 3 is where Paula saved the data in the required format
-
+if(TYPE == "food"| TYPE == "volume")
+{
+  df.orig<-read.xls(nm)
+  #exclude one repeat that didn't have anything
+  if(TYPE == "food")
+  {
+    df.orig<-df.orig[!(df.orig$Density == 100 & df.orig$Pan ==1 & df.orig$Ex.Repeat ==3),]
+  }
+}else{
+  df.orig<-do.call(rbind, lapply(nm, function(x) read.xls(x,sheet = 3)))  #sheet 3 is where Paula saved the data in the required format
+}
 
 #calculate the median from all the pans 
 df.formatted<-ddply(df.orig, .(Day, Density, Ex.Repeat, Strain, Temperature), function(X){
@@ -64,14 +76,20 @@ df<-read.csv(IN_FILE_CUM, sep = ",", header = TRUE, row.names = NULL)
 #this plot includes dthe invidiual data points of every ex.repeat
 pl2<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Density)))+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se)+basic_theme +ylab("Cumulative frequency of pupae")+scale_color_manual(values=c("black","red", "blue"))
 
+pl2_t<-ggplot(df, aes(x = Day, y = median.freq, colour = as.factor(Temperature)))+ facet_grid(Density~Strain)+ stat_summary(geom="line", fun.y="mean") + geom_point(stat = "summary", fun.y = mean)+ stat_summary(fun.data = mean_se)+basic_theme +ylab("Cumulative frequency of pupae")+scale_color_manual(values=c("orange","darkgreen", "darkblue"))
+
+
 #this plot just plots the summary, i.e., mean with se
 pl2.pulled<-ggplot(df, aes(x = Day, y = median.total, colour = as.factor(Density)))+ facet_grid(Temperature~Strain)+ stat_summary(geom="line", fun.y="mean") + stat_summary(geom="point", fun.y = mean)+stat_summary(fun.data = mean_se)+basic_theme  +ylab("Cumulative number of pupae") +scale_color_manual(values=c("black","red", "blue" ))
 
+pl2.pulled_t<-ggplot(df, aes(x = Day, y = median.total, colour = as.factor(Temperature)))+ facet_grid(Density~Strain)+ stat_summary(geom="line", fun.y="mean") + stat_summary(geom="point", fun.y = mean)+stat_summary(fun.data = mean_se)+basic_theme  +ylab("Cumulative number of pupae") +scale_color_manual(values=c("orange","darkgreen", "darkblue"))
 
 #save the plot
 pdf(OUT_CUM, width = 9, height = 9)
 pl2
+pl2_t
 pl2.pulled
+pl2.pulled_t
 dev.off()
 
 

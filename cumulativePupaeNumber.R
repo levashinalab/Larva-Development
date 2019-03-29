@@ -8,13 +8,13 @@ rm(list=ls())
 require(plyr) #necessary for data processing
 require(gdata) #necessary to read xls files
 
-TYPE<- "copasVShand"
+TYPE<- "food"
 
 IN_DIR<-paste('/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/', TYPE, '/', sep = "")
 
-OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_",TYPE,"_cumulative_pupae.csv",sep = "")
+OUT_FILE<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/",TYPE,"/", Sys.Date(),"_cumulative_pupae.csv",sep = "")
   
-OUT_FILE_M<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", Sys.Date(),"_",TYPE,"_cumulative_pupae_mean.csv",sep = "")
+OUT_FILE_M<-paste("/Volumes/abt.levashina/Project Development_AW_PCB_PS/analysis/", TYPE,"/",Sys.Date(),"_cumulative_pupae_mean.csv",sep = "")
 
 #set the current directory to IN_DIR
 setwd(IN_DIR)
@@ -23,7 +23,20 @@ setwd(IN_DIR)
 nm <- list.files(path=IN_DIR)
 
 #concatenate all data frames in the directory into one-------
+if(TYPE == "food" | TYPE == "volume")
+{
+  df.orig<-read.xls(nm)
+  #exclude one repeat that didn't have anything
+  if(TYPE == "food")
+  {
+    df.orig<-df.orig[!(df.orig$Density == 100 & df.orig$Pan ==1 & df.orig$Ex.Repeat ==3),]
+  }
+    
+}else{
 df.orig<-do.call(rbind, lapply(nm, function(x) read.xls(x,sheet = 3)))  #sheet 3 is where Paula saved the data in the required format
+}
+
+
 
 ##calculate the cumulative number of pupaeting larvae per day (and the frequency) ----
 df<-ddply(df.orig, .(Density, Strain, Ex.Repeat, Pan, Temperature), function(X){

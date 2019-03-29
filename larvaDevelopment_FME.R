@@ -17,7 +17,7 @@ library(FME)
 source("~/Documents/Projects/LarvaeDevelopment/src/Larva-Development/larvaDevelopmentModels.R")
 
 ## Define the model run ----
-params<-c(gamma = 1, h = 100, delta = 0.025, tau = 7)  # parameters
+params<-c(gamma = 0.3, h = 150, delta_L = 1)  # parameters
 s_init<-c(L = 100, P=0)                                 # initial states
 
 solveLarva<-function(pars=params, times=seq(0,20,by=0.5), model=larva_growth, s = s_init)
@@ -34,7 +34,7 @@ matplot(out[,1], out[,-1], lty = 1:3, lwd = c(2,2,1), type = "l", ylab = "Densit
 ##The Data: read and load the data of RsgG----
 IN_FILE<-"~/Documents/Projects/LarvaeDevelopment/analysis/2018_06_28_cumulative_pupae_mean.csv"
 df<-read.csv(IN_FILE, sep = ",", header = TRUE, row.names = NULL)
-data.Pupae<-subset(df, Strain =="RsgG" & Density ==100, select = 4:5)
+data.Pupae<-subset(df, Strain =="RsgG" & Density ==500, select = 4:5)
 names(data.Pupae)[1]<-"time"
 names(data.Pupae)[2]<-"P"
 #data.Pupae$P<-data.Pupae$P/100
@@ -43,7 +43,7 @@ names(data.Pupae)[2]<-"P"
 LarvaCost<-function(pars)
 {
   out<-(solveLarva(pars))
-  cost<-modCost(model = out, obs = data.Pupae, scaleVar = TRUE)
+  cost<-modCost(model = out, obs = data.Pupae[16:30,], scaleVar = TRUE)
   return(cost)
 }
 
@@ -58,16 +58,16 @@ plot(Sfun, which = "P", xlab = "time", lwd = 2)
 ident<-collin(Sfun)
 print(ident)
 
-plot(P~time, data = data.Pupae)
+plot(P~time, data = data.Pupae[16:30,])
 lines(P~time, data = out, col = "red")
 
 ##fit the model to the data
-Fit<-modFit(f = LarvaCost,p = log(params))
+Fit<-modFit(f = LarvaCost, p = log(params))
 
 ini<-solveLarva(pars = params)
-final<-solveLarva(pars = exp(coef(Fit)))
+final<-solveLarva(pars = coef(Fit))
 
-plot(data.Pupae)
+plot(data.Pupae[16:30,])
 lines(P~time, data = ini, lty = 2)
 lines(P~time, data = final, col = "red")
 

@@ -8,7 +8,7 @@ rm(list=ls())
 require(plyr) #necessary for data processing
 require(gdata) #necessary to read xls files
 
-TYPE<- "food"
+TYPE<- "development_low"
 
 IN_DIR<-paste('/Volumes/abt.levashina/Project Development_AW_PCB_PS/rawData/', TYPE, '/', sep = "")
 
@@ -23,7 +23,7 @@ setwd(IN_DIR)
 nm <- list.files(path=IN_DIR)
 
 #concatenate all data frames in the directory into one-------
-if(TYPE == "food" | TYPE == "volume")
+if(TYPE == "food" | TYPE == "volume" | TYPE == "development_low")
 {
   df.orig<-read.xls(nm)
   #exclude one repeat that didn't have anything
